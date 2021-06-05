@@ -13,17 +13,26 @@ sudo yum install libsqlite3x-devel -y
 sudo yum groupinstall "Development Tools" -y
 sudo yum install python3-devel gmp-devel  boost-devel libsodium-devel -y
 
-sudo yum install wget -y
-sudo wget https://www.python.org/ftp/python/3.7.7/Python-3.7.7.tgz
-sudo tar -zxvf Python-3.7.7.tgz ; cd Python-3.7.7
-./configure --enable-optimizations; sudo make -j$(nproc) altinstall; cd ..
+
+python_down=$curdir/Python-3.7.7
+if [ ! -d "$python_down" ]; then
+    sudo yum install wget -y
+    sudo wget https://www.python.org/ftp/python/3.7.7/Python-3.7.7.tgz
+    sudo tar -zxvf Python-3.7.7.tgz ; cd Python-3.7.7
+    ./configure --enable-optimizations; sudo make -j$(nproc) altinstall; cd ..
+fi
+
 
 # Download and install the source version
-git clone https://github.com/Chia-Network/chia-blockchain.git -b latest
+chia_down=$curdir/chia-blockchain
+if [ ! -d "chia_down" ]; then
+    git clone https://github.com/Chia-Network/chia-blockchain.git -b latest 
+fi
+
 
 pipconf_path=/root/.pip/pip.conf
 if [ -f "$pipconf_path" ]; then
-sudo rm -rf $pipconf_path
+    sudo rm -rf $pipconf_path
 fi
 
 echo "
@@ -60,16 +69,24 @@ echo "set python done"
 
 cd chia-blockchain
 
-sh install.sh
+if type chia >/dev/null 2>&1; then 
+    echo 'had compile chia' 
+else 
+    sh install.sh
+    echo 'chia compiled' 
+fi
+
 . ./activate
 
 chia init
 
-#chia keys generate
+chia keys delete_all
+
+chia keys generate
 
 sed -i "s/self_hostname: localhost/self_hostname: 0.0.0.0/g" /root/.chia/mainnet/config/config.yaml
 
 chia start wallet
 
-# 
+# 可能需要交互
 chia wallet show
