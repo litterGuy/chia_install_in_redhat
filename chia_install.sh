@@ -65,7 +65,7 @@ sh install.sh
 
 chia init
 
-chia keys generate
+#chia keys generate
 
 sed -i "s/self_hostname: localhost/self_hostname: 0.0.0.0/g" /root/.chia/mainnet/config/config.yaml
 
