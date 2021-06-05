@@ -1,0 +1,1 @@
+# chia_install_in_redhat
